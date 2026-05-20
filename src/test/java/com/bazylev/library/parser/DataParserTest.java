@@ -8,11 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,11 +23,9 @@ class DataParserTest {
   Path tempDir;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     parser = new DataParser();
-    Field instanceField = Library.class.getDeclaredField("INSTANCE");
-    instanceField.setAccessible(true);
-    ((AtomicReference<?>) instanceField.get(null)).set(null);
+    Library.resetForTesting();
   }
 
   @Test
@@ -55,7 +51,7 @@ class DataParserTest {
   @Test
   void parseLibrary_throwsDataParseExceptionForMissingFile() {
     assertThrows(DataParseException.class,
-        () -> parser.parseLibrary("nonexistent/path/file.txt"));
+            () -> parser.parseLibrary("nonexistent/path/file.txt"));
   }
 
   @Test
@@ -92,6 +88,6 @@ class DataParserTest {
   @Test
   void parseVisitors_throwsDataParseExceptionForMissingFile() {
     assertThrows(DataParseException.class,
-        () -> parser.parseVisitors("nonexistent/path/file.txt"));
+            () -> parser.parseVisitors("nonexistent/path/file.txt"));
   }
 }

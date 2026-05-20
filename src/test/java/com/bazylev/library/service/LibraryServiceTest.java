@@ -8,24 +8,19 @@ import com.bazylev.library.state.VisitorState;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LibraryServiceTest {
 
   @BeforeEach
-  void resetLibrarySingleton() throws Exception {
-    Field instanceField = Library.class.getDeclaredField("INSTANCE");
-    instanceField.setAccessible(true);
-    ((AtomicReference<?>) instanceField.get(null)).set(null);
+  void resetLibrarySingleton() {
+    Library.resetForTesting();
   }
 
   @Test
   void borrowBooks_visitorReceivesRequestedNumberOfBooks()
-      throws InterruptedException, BookNotAvailableException {
+          throws InterruptedException, BookNotAvailableException {
     Library.getInstance().addBook(new Book("1984", "Orwell"));
     Library.getInstance().addBook(new Book("Dune", "Herbert"));
     Visitor visitor = new Visitor("Alice", 2);
@@ -37,7 +32,7 @@ class LibraryServiceTest {
 
   @Test
   void borrowBooks_libraryCountDecreasesAfterBorrow()
-      throws InterruptedException, BookNotAvailableException {
+          throws InterruptedException, BookNotAvailableException {
     Library.getInstance().addBook(new Book("1984", "Orwell"));
     Library.getInstance().addBook(new Book("Dune", "Herbert"));
     Visitor visitor = new Visitor("Alice", 1);
@@ -49,7 +44,7 @@ class LibraryServiceTest {
 
   @Test
   void returnBooks_libraryCountRestored()
-      throws InterruptedException, BookNotAvailableException {
+          throws InterruptedException, BookNotAvailableException {
     Library.getInstance().addBook(new Book("1984", "Orwell"));
     Visitor visitor = new Visitor("Alice", 1);
     LibraryService.getInstance().borrowBooks(visitor);
@@ -61,7 +56,7 @@ class LibraryServiceTest {
 
   @Test
   void returnBooks_visitorListEmptyAfterReturn()
-      throws InterruptedException, BookNotAvailableException {
+          throws InterruptedException, BookNotAvailableException {
     Library.getInstance().addBook(new Book("1984", "Orwell"));
     Visitor visitor = new Visitor("Alice", 1);
     LibraryService.getInstance().borrowBooks(visitor);

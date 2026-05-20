@@ -4,9 +4,6 @@ import com.bazylev.library.exception.BookNotAvailableException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -15,10 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class LibraryTest {
 
   @BeforeEach
-  void resetSingleton() throws Exception {
-    Field instanceField = Library.class.getDeclaredField("INSTANCE");
-    instanceField.setAccessible(true);
-    ((AtomicReference<?>) instanceField.get(null)).set(null);
+  void resetSingleton() {
+    Library.resetForTesting();
   }
 
   @Test
@@ -82,6 +77,6 @@ class LibraryTest {
     library.addBook(new Book("Title", "Author"));
 
     assertThrows(UnsupportedOperationException.class,
-        () -> library.getAvailableBooks().clear());
+            () -> library.getAvailableBooks().clear());
   }
 }

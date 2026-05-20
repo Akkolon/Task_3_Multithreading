@@ -7,14 +7,15 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Library {
 
   private static final Logger logger = LogManager.getLogger(Library.class);
 
-  private static final AtomicReference<Library> INSTANCE = new AtomicReference<>();
+  private static final class Holder {
+    private static final Library INSTANCE = new Library();
+  }
 
   private final List<Book> availableBooks;
   private final ReentrantLock libraryLock;
@@ -25,15 +26,11 @@ public class Library {
   }
 
   public static Library getInstance() {
-    Library existing = INSTANCE.get();
-    if (existing != null) {
-      return existing;
-    }
-    Library newInstance = new Library();
-    if (INSTANCE.compareAndSet(null, newInstance)) {
-      return newInstance;
-    }
-    return INSTANCE.get();
+    return Holder.INSTANCE;
+  }
+
+  public static void resetForTesting() {
+    Holder.INSTANCE.availableBooks.clear();
   }
 
   public void addBook(Book book) {

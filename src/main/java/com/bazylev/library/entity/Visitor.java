@@ -1,6 +1,5 @@
 package com.bazylev.library.entity;
 
-import com.bazylev.library.exception.BookNotAvailableException;
 import com.bazylev.library.service.LibraryService;
 import com.bazylev.library.state.VisitorState;
 import org.apache.logging.log4j.LogManager;
@@ -13,7 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Visitor implements Callable<Void> {
+public class Visitor implements Callable<Boolean> {
 
   private static final Logger logger = LogManager.getLogger(Visitor.class);
 
@@ -34,7 +33,7 @@ public class Visitor implements Callable<Void> {
   }
 
   @Override
-  public Void call() throws InterruptedException, BookNotAvailableException {
+  public Boolean call() throws InterruptedException {
     LibraryService service = LibraryService.getInstance();
 
     logger.info("{} has entered the library", name);
@@ -51,7 +50,7 @@ public class Visitor implements Callable<Void> {
     setState(VisitorState.SERVED);
     logger.info("{} has been fully served and left the library", name);
 
-    return null;
+    return true;
   }
 
   public String getName() {
