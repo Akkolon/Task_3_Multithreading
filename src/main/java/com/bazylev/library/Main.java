@@ -1,16 +1,14 @@
 package com.bazylev.library;
 
-import com.bazylev.library.entity.Library;
-import com.bazylev.library.entity.Reader;
+import com.bazylev.library.entity.Visitor;
+import com.bazylev.library.exception.DataParseException;
 import com.bazylev.library.parser.DataParser;
-import com.bazylev.library.service.LibraryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
@@ -19,24 +17,31 @@ public class Main {
 
   public static void main(String[] args) {
     DataParser parser = new DataParser();
-    Library library = parser.parseLibrary("data/library.txt");
-    List<Reader> readers = parser.parseReaders("data/readers.txt");
+    List<Visitor> visitors;
 
-    LibraryService service = new LibraryService(library);
+    try {
+      parser.parseLibrary("data/library.txt");
+      visitors = parser.parseVisitors("data/readers.txt");
+    } catch (DataParseException e) {
+      logger.fatal("Failed to load input data: {}", e.getMessage());
+      return;
+    }
 
-    ExecutorService executor = Executors.newFixedThreadPool(readers.size());
-    List<Future<Void>> futures = readers.stream()
-        .map(reader -> executor.submit(service.createReaderTask(reader)))
-        .toList();
+    ExecutorService executor = Executors.newFixedThreadPool(visitors.size());
+    try {
+      logger.info("Library session started. Visitors: {}", visitors.size());
+      executor.invokeAll(visitors);
+    } catch (InterruptedException e) {
+      logger.error("Main thread was interrupted", e);
+      Thread.currentThread().interrupt();
+    } finally {
+      shutdownExecutor(executor);
+    }
 
-    futures.forEach(future -> {
-      try {
-        future.get();
-      } catch (Exception e) {
-        logger.error("Error while waiting for reader task to complete", e);
-      }
-    });
+    logger.info("All visitors have been served. Library session complete.");
+  }
 
+  private static void shutdownExecutor(ExecutorService executor) {
     executor.shutdown();
     try {
       if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
@@ -48,7 +53,5 @@ public class Main {
       executor.shutdownNow();
       Thread.currentThread().interrupt();
     }
-
-    logger.info("All readers have been served. Library session complete.");
   }
 }

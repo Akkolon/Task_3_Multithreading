@@ -1,6 +1,6 @@
 package com.bazylev.library.state;
 
-public enum ReaderState {
+public enum VisitorState {
   WAITING,
   SELECTING_BOOKS,
   READING,

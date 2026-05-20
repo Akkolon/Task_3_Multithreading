@@ -2,7 +2,8 @@ package com.bazylev.library.parser;
 
 import com.bazylev.library.entity.Book;
 import com.bazylev.library.entity.Library;
-import com.bazylev.library.entity.Reader;
+import com.bazylev.library.entity.Visitor;
+import com.bazylev.library.exception.DataParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,10 +20,10 @@ public class DataParser {
   private static final String FIELD_SEPARATOR = ",";
   private static final int BOOK_TITLE_INDEX = 0;
   private static final int BOOK_AUTHOR_INDEX = 1;
-  private static final int READER_NAME_INDEX = 0;
-  private static final int READER_LIMIT_INDEX = 1;
+  private static final int VISITOR_NAME_INDEX = 0;
+  private static final int VISITOR_LIMIT_INDEX = 1;
 
-  public Library parseLibrary(String filePath) {
+  public Library parseLibrary(String filePath) throws DataParseException {
     Library library = Library.getInstance();
     try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
       String line;
@@ -36,31 +37,29 @@ public class DataParser {
         library.addBook(new Book(title, author));
       }
     } catch (IOException e) {
-      logger.error("Failed to read library data from file: {}", filePath, e);
-      throw new RuntimeException("Cannot load library data", e);
+      throw new DataParseException("Failed to read library data from file: " + filePath, e);
     }
     logger.info("Library loaded with {} books", library.getAvailableBooksCount());
     return library;
   }
 
-  public List<Reader> parseReaders(String filePath) {
-    List<Reader> readers = new ArrayList<>();
-    try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+  public List<Visitor> parseVisitors(String filePath) throws DataParseException {
+    List<Visitor> visitors = new ArrayList<>();
+    try (BufferedReader fileReader = new BufferedReader(new FileReader(filePath))) {
       String line;
-      while ((line = reader.readLine()) != null) {
+      while ((line = fileReader.readLine()) != null) {
         if (line.isBlank()) {
           continue;
         }
         String[] parts = line.split(FIELD_SEPARATOR);
-        String name = parts[READER_NAME_INDEX].strip();
-        int limit = Integer.parseInt(parts[READER_LIMIT_INDEX].strip());
-        readers.add(new Reader(name, limit));
+        String name = parts[VISITOR_NAME_INDEX].strip();
+        int limit = Integer.parseInt(parts[VISITOR_LIMIT_INDEX].strip());
+        visitors.add(new Visitor(name, limit));
       }
     } catch (IOException e) {
-      logger.error("Failed to read readers data from file: {}", filePath, e);
-      throw new RuntimeException("Cannot load readers data", e);
+      throw new DataParseException("Failed to read visitors data from file: " + filePath, e);
     }
-    logger.info("Loaded {} readers", readers.size());
-    return readers;
+    logger.info("Loaded {} visitors", visitors.size());
+    return visitors;
   }
 }

@@ -1,0 +1,4 @@
+2026-05-20 18:53:56.383 [main] DEBUG com.bazylev.library.entity.Library - Book "Title" by Author has been taken from the library shelf
+2026-05-20 18:53:56.413 [main] DEBUG com.bazylev.library.entity.Library - Book "Title" by Author has been taken from the library shelf
+2026-05-20 18:53:56.413 [main] DEBUG com.bazylev.library.entity.Library - Book "Title" by Author has been returned to the library
+2026-05-20 18:53:56.416 [main] DEBUG com.bazylev.library.entity.Library - Book "Clean Code" by Robert Martin has been taken from the library shelf
