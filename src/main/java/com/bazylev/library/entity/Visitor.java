@@ -1,5 +1,6 @@
 package com.bazylev.library.entity;
 
+import com.bazylev.library.exception.BookNotAvailableException;
 import com.bazylev.library.service.LibraryService;
 import com.bazylev.library.state.VisitorState;
 import org.apache.logging.log4j.LogManager;
@@ -33,7 +34,7 @@ public class Visitor implements Callable<Boolean> {
   }
 
   @Override
-  public Boolean call() throws InterruptedException {
+  public Boolean call() throws InterruptedException, BookNotAvailableException {
     LibraryService service = LibraryService.getInstance();
 
     logger.info("{} has entered the library", name);
